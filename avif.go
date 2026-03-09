@@ -186,12 +186,11 @@ func Encode(w io.Writer, m image.Image, o *Options) error {
 		buf: nil,
 		sz:  0,
 	}
-	defer C.free(obu.buf)
 	// TODO(Kagami): Error description.
 	if eErr := C.avif_encode_frame(&cfg, &frame, &obu); eErr != 0 {
 		return EncoderError(eErr)
 	}
-
+	defer C.free(obu.buf)
 	obuData := (*[1 << 30]byte)(obu.buf)[:obu.sz:obu.sz]
 	if mErr := muxFrame(w, m, *o.SubsampleRatio, obuData); mErr != nil {
 		return MuxerError(mErr.Error())
